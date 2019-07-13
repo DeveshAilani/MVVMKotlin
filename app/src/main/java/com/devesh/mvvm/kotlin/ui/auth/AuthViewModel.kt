@@ -3,6 +3,7 @@ package com.devesh.mvvm.kotlin.ui.auth
 import android.view.View
 import androidx.lifecycle.ViewModel
 import com.devesh.mvvm.kotlin.data.repositories.UserRepository
+import com.devesh.mvvm.kotlin.util.Coroutines
 
 class AuthViewModel : ViewModel() {
 
@@ -21,7 +22,18 @@ class AuthViewModel : ViewModel() {
 
         // In this ViewModel we are creating instance of Repository which is making AuthVM dependent on repository
         // This bad practice which we will resolve using DI (Dependency Injection)
-        val loginResponse = UserRepository().userLogin(email!!, password!!)
-        authListener?.onSuccess(loginResponse)
+
+        //val loginResponse = UserRepository().userLogin(email!!, password!!)
+        //authListener?.onSuccess(loginResponse)
+
+
+        Coroutines.main {
+            val response = UserRepository().userLogin(email!!, password!!)
+            if (response.isSuccessful ){
+                authListener?.onSuccess(response.body()?.user!!)
+            } else {
+                authListener?.onFailure("Error Code: ${response.code()}")
+            }
+        }
     }
 }
